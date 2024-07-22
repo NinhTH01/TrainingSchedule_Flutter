@@ -30,6 +30,7 @@ class _CalendarViewState extends State<CalendarView> {
   void initState() {
     super.initState();
     _getCalculatedDateList();
+    _viewModel.context = context;
   }
 
   @override

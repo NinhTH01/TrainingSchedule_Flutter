@@ -25,6 +25,7 @@ class _CalendarEventListViewState extends State<CalendarEventListView> {
   void initState() {
     super.initState();
     _getEventList();
+    _viewModel.context = context;
   }
 
   void _getEventList() {

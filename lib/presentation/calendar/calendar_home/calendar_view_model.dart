@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:training_schedule/data/local/database/events_database.dart';
 import 'package:training_schedule/models/event_day_info.dart';
 
@@ -5,6 +6,8 @@ import '../../../models/event.dart';
 
 class CalendarViewModel {
   List<EventDayInfo> listOfDateInMonth = [];
+
+  late BuildContext context;
 
   Future<List<EventDayInfo>> getThisMonthDateList(DateTime currentDate) async {
     DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
@@ -30,7 +33,24 @@ class CalendarViewModel {
         .then((list) => {
               items = list,
             })
-        .catchError((error) => print(error));
+        .catchError((error) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: const Text("Error when capturing map!!"),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("Close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    });
 
     List<EventDayInfo> calendarList = [];
 
