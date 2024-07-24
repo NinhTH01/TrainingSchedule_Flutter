@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:training_schedule/models/event_day_info.dart';
 import 'package:training_schedule/presentation/calendar/calendar_event_list/calendar_event_list_view.dart';
@@ -8,7 +10,9 @@ import '../components/build_calendar.dart';
 import 'calendar_view_model.dart';
 
 class CalendarView extends StatefulWidget {
-  const CalendarView({super.key});
+  final Stream<List<EventDayInfo>> stream;
+
+  const CalendarView({super.key, required this.stream});
 
   @override
   State<CalendarView> createState() => _CalendarViewState();
@@ -19,6 +23,8 @@ final RouteObserver<ModalRoute<void>> routeObserver =
 
 class _CalendarViewState extends State<CalendarView> {
   // Var and const
+  late StreamSubscription<List<EventDayInfo>> _subscription;
+
   final CalendarViewModel _viewModel = CalendarViewModel();
 
   DateTime _currentDate = DateTime.now();
@@ -29,16 +35,19 @@ class _CalendarViewState extends State<CalendarView> {
   @override
   void initState() {
     super.initState();
-    print(1);
-    // _getCalculatedDateList();
     _viewModel.context = context;
+
+    _subscription = widget.stream.listen((value) {
+      setState(() {
+        _dateList = value;
+      });
+    });
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    print(2);
-    _getCalculatedDateList();
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 
   // Function
