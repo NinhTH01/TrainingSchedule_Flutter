@@ -29,13 +29,15 @@ class _CalendarViewState extends State<CalendarView> {
   @override
   void initState() {
     super.initState();
-    _getCalculatedDateList();
+    print(1);
+    // _getCalculatedDateList();
     _viewModel.context = context;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    print(2);
     _getCalculatedDateList();
   }
 

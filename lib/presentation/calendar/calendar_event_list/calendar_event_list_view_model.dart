@@ -15,11 +15,12 @@ class CalendarEventListViewModel {
               items = list,
             })
         .catchError((error) {
+      // Future.error("Error when get Date!!");
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: const Text("Error when capturing map!!"),
+            content: const Text("Error when get Date!!"),
             actions: <Widget>[
               TextButton(
                 child: const Text("Close"),

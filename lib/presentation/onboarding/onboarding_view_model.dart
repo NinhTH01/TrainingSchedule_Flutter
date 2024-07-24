@@ -1,4 +1,4 @@
-import 'package:training_schedule/models/onboarding_slide_info.dart';
+import 'package:training_schedule/models/onboarding/onboarding_slide_info.dart';
 
 class OnboardingViewModel {
   List<OnboardingSlideInfo> items = [

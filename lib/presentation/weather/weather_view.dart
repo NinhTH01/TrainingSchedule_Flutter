@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:training_schedule/providers/current_weather_provider.dart';
 
-class WeatherView extends StatefulWidget {
+import '../../providers/forecast_weather_provider.dart';
+
+class WeatherView extends ConsumerWidget {
   const WeatherView({super.key});
 
   @override
-  State<WeatherView> createState() => _WeatherViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weatherData = ref.watch(currentWeatherProvider);
+    final weatherForecast = ref.watch(forecastWeatherProvider);
 
-class _WeatherViewState extends State<WeatherView> {
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Text("Scaffold"),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text("${weatherData.valueOrNull?.name}"),
+          // Text("${weatherForecast.valueOrNull?.city?.name}")
+        ],
+      ),
     );
   }
 }
