@@ -95,10 +95,10 @@ class WeatherData {
 
 @immutable
 class Main {
-  final double temp;
-  final double feelsLike;
-  final double tempMin;
-  final double tempMax;
+  final num temp;
+  final num feelsLike;
+  final num tempMin;
+  final num tempMax;
   final int? pressure;
   final int? humidity;
   final int? seaLevel;
@@ -118,10 +118,10 @@ class Main {
   });
 
   factory Main.fromJson(Map<String, dynamic> json) => Main(
-        temp: json['temp'] as double,
-        feelsLike: json['feels_like'] as double,
-        tempMin: json['temp_min'] as double,
-        tempMax: json['temp_max'] as double,
+        temp: json['temp'] as num,
+        feelsLike: json['feels_like'] as num,
+        tempMin: json['temp_min'] as num,
+        tempMax: json['temp_max'] as num,
         pressure: json['pressure'],
         humidity: json['humidity'],
         seaLevel: json['sea_level'],
@@ -132,9 +132,9 @@ class Main {
 
 @immutable
 class Wind {
-  final double speed;
+  final num speed;
   final int deg;
-  final double? gust;
+  final num? gust;
 
   const Wind({
     required this.speed,
@@ -151,7 +151,7 @@ class Wind {
 
 @immutable
 class Rain {
-  final double? oneHour;
+  final num? oneHour;
 
   const Rain({this.oneHour});
 

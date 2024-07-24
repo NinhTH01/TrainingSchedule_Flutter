@@ -22,8 +22,8 @@ class WeatherApiBase {
 
   static Future<void> fetchLocation() async {
     final location = await getLocation();
-    lat = location.latitude!;
-    lon = location.longitude!;
+    lat = location.latitude;
+    lon = location.longitude;
   }
 
   static Future<Weather> getCurrentWeather() async {
@@ -43,15 +43,14 @@ class WeatherApiBase {
   static Future<Map<String, dynamic>> _fetchData(String url) async {
     try {
       final response = await dio.get(url);
-
       if (response.statusCode == 200) {
         return response.data;
       } else {
-        print('Failed to load data: ${response.statusCode}');
+        // print('Failed to load data: ${response.statusCode}');
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print('Error fetching data from $url: $e');
+      // print('Error fetching data from $url: $e');
       throw Exception('Error fetching data');
     }
   }
