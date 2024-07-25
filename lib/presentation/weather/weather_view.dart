@@ -1,13 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:training_schedule/helper/get_background_color.dart';
+import 'package:training_schedule/helper/string.dart';
+import 'package:training_schedule/helper/time.dart';
+import 'package:training_schedule/presentation/weather/components/weather_forcast.dart';
+import 'package:training_schedule/presentation/weather/components/weather_status.dart';
+import 'package:training_schedule/presentation/weather/components/weather_wind.dart';
 import 'package:training_schedule/presentation/weather/weather_model_view.dart';
 
 import '../../const/weather.dart';
 import '../../models/weather/weather.dart';
 import '../../models/weather/weather_forecast.dart';
 
-class WeatherView extends ConsumerWidget {
+class WeatherView extends ConsumerStatefulWidget {
   const WeatherView({super.key});
+
+  @override
+  ConsumerState<WeatherView> createState() => _WeatherViewState();
+}
+
+class _WeatherViewState extends ConsumerState<WeatherView> {
+  final ScrollController _scrollController = ScrollController();
+  // Final value for animation logic
+  double _maxContainerHeight = 250;
+  double _maxOffsetDescription = 60;
+  double _maxOffsetMinimize = 100;
+  // Variables
+  double _containerHeight = 250;
+  double _descOpacity = 1.0;
+  double _minimizeOpacity = 0.0;
+  double _scrollPadding = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Set final value based on screen height
+      Size size = MediaQuery.of(context).size;
+      double height = size.height;
+      _maxContainerHeight = height * 0.3;
+      _maxOffsetDescription = height * 0.07;
+      _maxOffsetMinimize = height * 0.11;
+    });
+  }
+
+  void _onScroll() {
+    setState(() {
+      _containerHeight = _maxContainerHeight - _scrollController.offset;
+      // Ensure height doesn't go below a certain value
+      if (_containerHeight < _maxOffsetMinimize) {
+        _containerHeight = _maxOffsetMinimize;
+      }
+      if (_containerHeight > _maxContainerHeight) {
+        _containerHeight = _maxContainerHeight;
+      }
+
+      double opacity = 1.0 - (_scrollController.offset / _maxOffsetDescription);
+      if (opacity < 0) opacity = 0;
+      if (opacity > 1) opacity = 1;
+      _descOpacity = opacity;
+
+      double minOpacity = ((_scrollController.offset - _maxOffsetDescription) /
+          (_maxOffsetMinimize - _maxOffsetDescription));
+      if (minOpacity < 0) minOpacity = 0;
+      if (minOpacity > 1) minOpacity = 1;
+      _minimizeOpacity = minOpacity;
+
+      if (_scrollController.offset < _maxContainerHeight - _maxOffsetMinimize) {
+        _scrollPadding = _scrollController.offset;
+      } else {
+        _scrollPadding = _maxContainerHeight - _maxOffsetMinimize;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   String getBackgroundImagePath(String weatherCondition) {
     switch (weatherCondition) {
@@ -27,14 +100,14 @@ class WeatherView extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final dataAsyncValue = ref.watch(dataProvider);
     return Scaffold(
       body: dataAsyncValue.when(data: (data) {
         final Weather weather = data["weather"];
         final WeatherForecast weatherForecast = data["weatherForecast"];
-        // print(weather.main);
-
+        final Color backgroundColor =
+            getBackgroundColor(weather.weather[0].main);
         return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -47,16 +120,117 @@ class WeatherView extends ConsumerWidget {
             child: SafeArea(
                 child: Column(
               children: [
-                Center(
-                  child: Text(
-                    'Hello, Flutter!',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                // Start: Weather Detail
+                SizedBox(
+                  height: _containerHeight,
+                  child: Column(
+                    children: [
+                      Text(weather.name,
+                          style: const TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
+                      _containerHeight >
+                              _maxContainerHeight - _maxOffsetDescription
+                          ? Opacity(
+                              opacity: _descOpacity,
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "${weather.main.temp.round()}°",
+                                    style: const TextStyle(
+                                        fontSize: 60,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  ),
+                                  Text(
+                                    capitalizeFirstLetter(
+                                        weather.weather[0].description),
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white),
+                                  ),
+                                  Text(
+                                    "H:${weather.main.tempMax.round()}  L:${weather.main.tempMin.round()}",
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white),
+                                  )
+                                ],
+                              ))
+                          : Opacity(
+                              opacity: _minimizeOpacity,
+                              child: Text(
+                                "${weather.main.temp.round()}° | ${capitalizeFirstLetter(weather.weather[0].description)}",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600),
+                              ))
+                    ],
                   ),
                 ),
+                // End: header Detail
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const _NoBounceScrollPhysics(),
+                    padding: EdgeInsets.only(top: _scrollPadding),
+                    controller: _scrollController,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // First item
+                        weatherForecastWidget(weatherForecast, weather),
+                        weatherWindWidget(weather),
+                        // Grid
+                        GridView(
+                          padding: const EdgeInsets.all(16.0),
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2, // Number of columns
+                            crossAxisSpacing: 20.0,
+                            mainAxisSpacing: 24.0,
+                            childAspectRatio: 1, // Width / Height ratio
+                          ),
+                          children: [
+                            weatherStatusWidget(
+                                "HUMIDITY",
+                                weather.main.humidity == null
+                                    ? null
+                                    : "${weather.main.humidity}%",
+                                backgroundColor),
+                            weatherStatusWidget(
+                                "FEELS LIKE",
+                                "${weather.main.feelsLike.round()}°",
+                                backgroundColor),
+                            weatherStatusWidget(
+                                "SUNSET",
+                                unixToHHmm(weather.sys.sunset),
+                                backgroundColor),
+                            weatherStatusWidget(
+                                "SUNRISE",
+                                unixToHHmm(weather.sys.sunrise),
+                                backgroundColor),
+                            weatherStatusWidget(
+                                "PRESSURE",
+                                "${weather.main.pressure}\nhPa",
+                                backgroundColor),
+                            weatherStatusWidget(
+                                "VISIBILITY",
+                                weather.visibility == null
+                                    ? null
+                                    : "${weather.visibility! / 1000} km",
+                                backgroundColor),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               ],
             )));
       }, error: (error, stack) {
@@ -68,58 +242,21 @@ class WeatherView extends ConsumerWidget {
   }
 }
 
-// class WeatherView extends StatefulWidget {
-//   final Stream<Future<Map<String, dynamic>>> stream;
-//
-//   const WeatherView({super.key, required this.stream});
-//
-//   @override
-//   State<WeatherView> createState() => _WeatherViewState();
-// }
-//
-// class _WeatherViewState extends State<WeatherView> {
-//   final WeatherModelView modelView = WeatherModelView();
-//   late StreamSubscription<Future<Map<String, dynamic>>> _subscription;
-//
-//   Future<Map<String, dynamic>>? data;
-//
-//   @override
-//   void initState() {
-//     // TODO: implement initState
-//     super.initState();
-//     data = modelView.fetchAllData();
-//
-//     // _subscription = widget.stream.listen((value) {
-//     //   setState(() {
-//     //     data = value;
-//     //   });
-//     // });
-//   }
-//
-//   // @override
-//   // void dispose() {
-//   //   _subscription.cancel();
-//   //   super.dispose();
-//   // }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: FutureBuilder(
-//           future: data,
-//           builder: (context, snapshot) {
-//             if (snapshot.connectionState == ConnectionState.waiting) {
-//               return Center(child: CircularProgressIndicator());
-//             } else if (snapshot.hasError) {
-//               return Center(child: Text('Error: ${snapshot.error}'));
-//             } else if (snapshot.hasData) {
-//               final data1 = snapshot.data!['weather']!;
-//               final data2 = snapshot.data!['weatherForecast']!;
-//               return Center(child: Text('Center'));
-//             } else {
-//               return Center(child: Text('No data'));
-//             }
-//           }),
-//     );
-//   }
-// }
+class _NoBounceScrollPhysics extends ClampingScrollPhysics {
+  const _NoBounceScrollPhysics({super.parent});
+
+  @override
+  _NoBounceScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return _NoBounceScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  double applyBoundaryConditions(ScrollMetrics position, double value) {
+    if (value < position.pixels && position.pixels <= 0.0) {
+      // Prevent scrolling up when already at the top
+      return value - position.pixels;
+    } else {
+      return super.applyBoundaryConditions(position, value);
+    }
+  }
+}
