@@ -18,9 +18,6 @@ class CalendarView extends StatefulWidget {
   State<CalendarView> createState() => _CalendarViewState();
 }
 
-final RouteObserver<ModalRoute<void>> routeObserver =
-    RouteObserver<ModalRoute<void>>();
-
 class _CalendarViewState extends State<CalendarView> {
   // Var and const
   late StreamSubscription<List<EventDayInfo>> _subscription;

@@ -16,17 +16,17 @@ class NavigationView extends StatefulWidget {
 }
 
 class _NavigationViewState extends State<NavigationView> {
-  final StreamController<List<EventDayInfo>> _streamController =
+  final StreamController<List<EventDayInfo>> _calendarStreamController =
       StreamController<List<EventDayInfo>>();
 
   int _currentTabBarIndex = 0;
 
-  final CalendarViewModel _viewModel = CalendarViewModel();
+  final CalendarViewModel _calendarViewModel = CalendarViewModel();
 
   @override
   void initState() {
     super.initState();
-    emitValue();
+    emitCalendarValue();
   }
 
   void onBottomTap(int newTabIndex) async {
@@ -35,18 +35,18 @@ class _NavigationViewState extends State<NavigationView> {
     });
 
     if (newTabIndex == 0) {
-      emitValue();
+      emitCalendarValue();
     }
   }
 
-  void emitValue() async {
+  void emitCalendarValue() async {
     List<EventDayInfo> list = [];
 
-    await _viewModel
+    await _calendarViewModel
         .getThisMonthDateList(DateTime.now())
         .then((value) => {list = value});
 
-    _streamController.sink.add(list);
+    _calendarStreamController.sink.add(list);
   }
 
   @override
@@ -56,7 +56,7 @@ class _NavigationViewState extends State<NavigationView> {
           index: _currentTabBarIndex,
           children: [
             CalendarView(
-              stream: _streamController.stream,
+              stream: _calendarStreamController.stream,
             ),
             const MapView(),
             const WeatherView(),

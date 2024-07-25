@@ -35,21 +35,30 @@ class WeatherView extends ConsumerWidget {
         final WeatherForecast weatherForecast = data["weatherForecast"];
         // print(weather.main);
 
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: Image.asset(
-                getBackgroundImagePath(weather.weather[0].main),
-                fit: BoxFit.cover,
+        return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image:
+                    AssetImage(getBackgroundImagePath(weather.weather[0].main)),
+                fit: BoxFit
+                    .cover, // Adjust the fit property to control how the image is resized to cover the container
               ),
             ),
-            // Column(
-            //   crossAxisAlignment: CrossAxisAlignment.center,
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [Text("Center")],
-            // )
-          ],
-        );
+            child: SafeArea(
+                child: Column(
+              children: [
+                Center(
+                  child: Text(
+                    'Hello, Flutter!',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            )));
       }, error: (error, stack) {
         return Center(child: Text('Error: ${dataAsyncValue.error}'));
       }, loading: () {
@@ -60,23 +69,38 @@ class WeatherView extends ConsumerWidget {
 }
 
 // class WeatherView extends StatefulWidget {
-//   const WeatherView({super.key});
+//   final Stream<Future<Map<String, dynamic>>> stream;
+//
+//   const WeatherView({super.key, required this.stream});
 //
 //   @override
 //   State<WeatherView> createState() => _WeatherViewState();
 // }
 //
 // class _WeatherViewState extends State<WeatherView> {
-//   WeatherModelView modelView = WeatherModelView();
+//   final WeatherModelView modelView = WeatherModelView();
+//   late StreamSubscription<Future<Map<String, dynamic>>> _subscription;
+//
 //   Future<Map<String, dynamic>>? data;
 //
 //   @override
 //   void initState() {
 //     // TODO: implement initState
 //     super.initState();
-//     print(0);
 //     data = modelView.fetchAllData();
+//
+//     // _subscription = widget.stream.listen((value) {
+//     //   setState(() {
+//     //     data = value;
+//     //   });
+//     // });
 //   }
+//
+//   // @override
+//   // void dispose() {
+//   //   _subscription.cancel();
+//   //   super.dispose();
+//   // }
 //
 //   @override
 //   Widget build(BuildContext context) {
