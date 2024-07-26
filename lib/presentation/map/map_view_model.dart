@@ -29,4 +29,23 @@ class MapViewModel {
 
     await eventsDatabase.insert(event);
   }
+
+  static Future<double> checkTotalDistance() async {
+    List<Event> items = [];
+
+    await EventsDatabase()
+        .getList()
+        .then((list) => {
+              items = list,
+            })
+        .catchError((error) {});
+
+    double totalDistance = 0;
+
+    for (Event item in items) {
+      totalDistance += item.distance;
+    }
+
+    return totalDistance;
+  }
 }

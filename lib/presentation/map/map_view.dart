@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:training_schedule/presentation/map/map_view_model.dart';
 
 class MapView extends StatefulWidget {
@@ -160,6 +162,32 @@ class _MapViewState extends State<MapView> {
             );
           },
         );
+
+        MapViewModel.checkTotalDistance().then((value) async {
+          final prefs = await SharedPreferences.getInstance();
+          final hasAchieved = prefs.getBool("hasAchieved") ?? false;
+
+          if (value > 100.0 && !hasAchieved && mounted) {
+            prefs.setBool("hasAchieved", true);
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return const SimpleDialog(children: [
+                  Center(
+                      child: SizedBox(
+                    width: 300,
+                    height: 300,
+                    child: UiKitView(
+                      viewType: 'congratulation_view',
+                      creationParams: {},
+                      creationParamsCodec: StandardMessageCodec(),
+                    ),
+                  )),
+                ]);
+              },
+            );
+          }
+        });
       }
     }).catchError((onError) {
       showDialog(
