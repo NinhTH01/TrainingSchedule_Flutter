@@ -7,6 +7,15 @@ import '../../../models/event.dart';
 class CalendarViewModel {
   late BuildContext context;
 
+  // Calendar Events Stream Provider
+  Stream<List<EventDayInfo>> getThisMonthDateListStream(
+      DateTime dateTime) async* {
+    // Replace the following with actual implementation to get a stream of data
+    // For example, if you fetch data periodically or on some event, you can yield data here
+    List<EventDayInfo> list = await getThisMonthDateList(dateTime);
+    yield list; // Emit the list of EventDayInfo
+  }
+
   Future<List<EventDayInfo>> getThisMonthDateList(DateTime currentDate) async {
     DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
     int weekday = firstDayOfMonth.weekday;
