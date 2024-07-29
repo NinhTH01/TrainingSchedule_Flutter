@@ -37,8 +37,6 @@ Widget buildCalendar(
 
 Widget buildDayInMonth(EventDayInfo day, onPressed, inMonth) {
   bool isToday = CalendarViewModel.isToday(day.date);
-  // print(day.date);
-  // print(day.hasEvent);
   return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,

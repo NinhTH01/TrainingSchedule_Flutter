@@ -17,15 +17,15 @@ class CalendarEventEditView extends StatefulWidget {
 }
 
 class _CalendarEventEditViewState extends State<CalendarEventEditView> {
-  CalendarEventEditModelView modelView = CalendarEventEditModelView();
+  final CalendarEventEditModelView _modelView = CalendarEventEditModelView();
 
   @override
   void initState() {
     super.initState();
     if (widget.event != null) {
-      modelView.selectedTime =
+      _modelView.selectedTime =
           TimeOfDay.fromDateTime(widget.event!.createdTime);
-      modelView.controller.text = widget.event!.description;
+      _modelView.controller.text = widget.event!.description;
     }
   }
 
@@ -39,7 +39,7 @@ class _CalendarEventEditViewState extends State<CalendarEventEditView> {
           CupertinoActionSheetAction(
             isDestructiveAction: true,
             onPressed: () {
-              modelView.deleteEvent(widget, context);
+              _modelView.deleteEvent(widget, context);
               Navigator.pop(context);
             },
             child: const Text('Confirm'),
@@ -76,7 +76,7 @@ class _CalendarEventEditViewState extends State<CalendarEventEditView> {
               ),
               TextButton(
                   onPressed: () {
-                    modelView.addOrUpdateEvent(widget);
+                    _modelView.addOrUpdateEvent(widget);
                     Navigator.pop(context);
                   },
                   child: const Text(
@@ -98,7 +98,7 @@ class _CalendarEventEditViewState extends State<CalendarEventEditView> {
                   SizedBox(
                     width: 300,
                     child: TextField(
-                      controller: modelView.controller,
+                      controller: _modelView.controller,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Description',
@@ -110,17 +110,17 @@ class _CalendarEventEditViewState extends State<CalendarEventEditView> {
                       onPressed: () async {
                         final TimeOfDay? timeOfDay = await showTimePicker(
                           context: context,
-                          initialTime: modelView.selectedTime,
+                          initialTime: _modelView.selectedTime,
                           initialEntryMode: TimePickerEntryMode.input,
                         );
                         if (timeOfDay != null) {
                           setState(() {
-                            modelView.selectedTime = timeOfDay;
+                            _modelView.selectedTime = timeOfDay;
                           });
                         }
                       },
                       child: Text(
-                        modelView.selectedTime.format(context),
+                        _modelView.selectedTime.format(context),
                         style: const TextStyle(color: Colors.black),
                       ))
                 ],

@@ -15,11 +15,11 @@ class MapViewModel {
         polylinePoints[i + 1].longitude,
       );
     }
-    addEventToDatabase(totalDistance);
+    _addEventToDatabase(totalDistance);
     return totalDistance;
   }
 
-  static void addEventToDatabase(double distance) async {
+  static void _addEventToDatabase(double distance) async {
     Event event = Event(
         createdTime: DateTime.now(),
         distance: distance,

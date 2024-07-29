@@ -26,7 +26,7 @@ class _NavigationViewState extends State<NavigationView> {
   @override
   void initState() {
     super.initState();
-    emitCalendarValue();
+    _emitCalendarValue();
   }
 
   void onBottomTap(int newTabIndex) async {
@@ -35,11 +35,11 @@ class _NavigationViewState extends State<NavigationView> {
     });
 
     if (newTabIndex == 0) {
-      emitCalendarValue();
+      _emitCalendarValue();
     }
   }
 
-  void emitCalendarValue() async {
+  void _emitCalendarValue() async {
     List<EventDayInfo> list = [];
 
     await _calendarViewModel

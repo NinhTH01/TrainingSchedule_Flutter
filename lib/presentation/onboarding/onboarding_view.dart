@@ -12,10 +12,10 @@ class OnboardingView extends StatefulWidget {
 }
 
 class _OnboardingViewState extends State<OnboardingView> {
-  final controller = OnboardingViewModel();
-  final pageController = PageController();
+  final _controller = OnboardingViewModel();
+  final _pageController = PageController();
 
-  void handleNavigateToHomeView() {
+  void _handleNavigateToHomeView() {
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => const NavigationView()));
   }
@@ -26,27 +26,27 @@ class _OnboardingViewState extends State<OnboardingView> {
         body: Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
       child: PageView.builder(
-        controller: pageController,
-        itemCount: controller.items.length,
+        controller: _pageController,
+        itemCount: _controller.items.length,
         itemBuilder: (context, index) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(controller.items[index].image),
+              Image.asset(_controller.items[index].image),
               const SizedBox(height: 15),
               Text(
-                controller.items[index].title,
+                _controller.items[index].title,
                 style:
                     const TextStyle(fontSize: 31, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 15),
-              Text(controller.items[index].description,
+              Text(_controller.items[index].description,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.grey, fontSize: 12)),
               const SizedBox(height: 150),
               SmoothPageIndicator(
-                controller: pageController,
-                count: controller.items.length,
+                controller: _pageController,
+                count: _controller.items.length,
                 effect: const WormEffect(
                   dotHeight: 8.0,
                   dotWidth: 8.0,
@@ -61,12 +61,12 @@ class _OnboardingViewState extends State<OnboardingView> {
                 width: 150,
                 child: OutlinedButton(
                   onPressed: () async {
-                    if (index < controller.items.length - 1) {
-                      pageController.nextPage(
+                    if (index < _controller.items.length - 1) {
+                      _pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeIn);
                     } else {
-                      handleNavigateToHomeView();
+                      _handleNavigateToHomeView();
                       final prefs = await SharedPreferences.getInstance();
                       prefs.setBool("onboarding", true);
                     }
@@ -74,7 +74,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                   style: OutlinedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8))),
-                  child: Text(index == controller.items.length - 1
+                  child: Text(index == _controller.items.length - 1
                       ? 'Get started!'
                       : "Next"),
                 ),

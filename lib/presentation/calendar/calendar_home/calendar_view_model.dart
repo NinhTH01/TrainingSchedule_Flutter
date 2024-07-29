@@ -5,8 +5,6 @@ import 'package:training_schedule/models/event_day_info.dart';
 import '../../../models/event.dart';
 
 class CalendarViewModel {
-  List<EventDayInfo> listOfDateInMonth = [];
-
   late BuildContext context;
 
   Future<List<EventDayInfo>> getThisMonthDateList(DateTime currentDate) async {
@@ -57,7 +55,7 @@ class CalendarViewModel {
     for (EventDayInfo date in dates) {
       bool isEvent = false;
       for (Event item in items) {
-        if (isSameDay(date.date, item.createdTime)) {
+        if (_isSameDay(date.date, item.createdTime)) {
           isEvent = true;
           break;
         }
@@ -65,12 +63,10 @@ class CalendarViewModel {
       calendarList.add(EventDayInfo(date: date.date, hasEvent: isEvent));
     }
 
-    listOfDateInMonth = calendarList;
-
     return calendarList;
   }
 
-  static bool isSameDay(DateTime date1, DateTime date2) {
+  bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;

@@ -82,7 +82,7 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
     super.dispose();
   }
 
-  String getBackgroundImagePath(String weatherCondition) {
+  String _getBackgroundImagePath(String weatherCondition) {
     switch (weatherCondition) {
       case WeatherCondition.clear:
         return 'assets/weather_background/default.jpg';
@@ -111,8 +111,8 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
         return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image:
-                    AssetImage(getBackgroundImagePath(weather.weather[0].main)),
+                image: AssetImage(
+                    _getBackgroundImagePath(weather.weather[0].main)),
                 fit: BoxFit
                     .cover, // Adjust the fit property to control how the image is resized to cover the container
               ),
