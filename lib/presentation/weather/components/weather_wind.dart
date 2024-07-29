@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:training_schedule/helper/get_background_color.dart';
+import 'package:training_schedule/helper/background_color.dart';
 
 import '../../../models/weather/weather.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:training_schedule/helper/get_background_color.dart';
+import 'package:training_schedule/helper/background_color.dart';
 import 'package:training_schedule/helper/string.dart';
 import 'package:training_schedule/helper/time.dart';
 import 'package:training_schedule/presentation/weather/components/weather_forcast.dart';

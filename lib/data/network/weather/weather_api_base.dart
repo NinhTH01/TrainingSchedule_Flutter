@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:training_schedule/models/weather/weather_forecast.dart';
 
-import '../../../helper/get_location.dart';
+import '../../../helper/location.dart';
 import '../../../models/weather/weather.dart';
 
 @immutable

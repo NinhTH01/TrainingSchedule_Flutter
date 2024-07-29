@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:training_schedule/helper/get_background_color.dart';
-import 'package:training_schedule/helper/get_weather_icon.dart';
+import 'package:training_schedule/helper/background_color.dart';
+import 'package:training_schedule/helper/weather_icon.dart';
 
 import '../../../helper/time.dart';
 import '../../../models/weather/weather.dart';
