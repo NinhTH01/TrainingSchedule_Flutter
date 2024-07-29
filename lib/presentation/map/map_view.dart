@@ -1,205 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:training_schedule/presentation/map/map_view_model.dart';
 
-class MapView extends StatefulWidget {
+import 'map_view_model.dart';
+
+class MapView extends ConsumerWidget {
   const MapView({super.key});
 
   @override
-  State<MapView> createState() => _MapViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mapState = ref.watch(mapStateProvider);
+    final mapStateNotifier = ref.watch(mapStateProvider.notifier);
 
-class _MapViewState extends State<MapView> {
-  // Variable and const
-  final _locationController = Location();
-
-  late GoogleMapController _googleMapController;
-
-  final Set<Polyline> _polylines = {};
-
-  final List<LatLng> _polylineCoordinates = [];
-
-  LatLng? _currentPosition;
-
-  bool _isRunning = false;
-
-  bool _isUpdating = true;
-
-  double _distance = 0.0;
-
-  // LifeCycle
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) async => await _fetchLocationUpdates());
-  }
-
-  // Function
-  void _onMapCreated(GoogleMapController controller) {
-    _googleMapController = controller;
-    _locationController.onLocationChanged.listen((currentLocation) {
-      if (currentLocation.latitude != null &&
-          currentLocation.longitude != null) {
-        if (_isUpdating && mounted) {
-          setState(() {
-            controller.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
-                target: LatLng(
-                    currentLocation.latitude!, currentLocation.longitude!),
-                zoom: 18.0)));
-          });
-        }
-      }
-    });
-  }
-
-  Future<void> _fetchLocationUpdates() async {
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-
-    serviceEnabled = await _locationController.serviceEnabled();
-    if (serviceEnabled) {
-      serviceEnabled = await _locationController.requestService();
-    } else {
-      return;
-    }
-
-    permissionGranted = await _locationController.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await _locationController.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    _locationController.onLocationChanged.listen((currentLocation) {
-      if (currentLocation.latitude != null &&
-          currentLocation.longitude != null) {
-        if (_isUpdating && mounted) {
-          setState(() {
-            _currentPosition = LatLng(
-              currentLocation.latitude!,
-              currentLocation.longitude!,
-            );
-
-            if (_isRunning) {
-              _polylineCoordinates.add(LatLng(
-                currentLocation.latitude!,
-                currentLocation.longitude!,
-              ));
-
-              _polylines.add(
-                Polyline(
-                  polylineId: const PolylineId('polyline'),
-                  visible: true,
-                  points: _polylineCoordinates,
-                  color: Colors.blue,
-                  width: 4,
-                ),
-              );
-            }
-          });
-        }
-      }
-    });
-  }
-
-  Future<void> _setCameraToPolylineBounds() async {
-    LatLngBounds bounds = calculateBounds(_polylineCoordinates);
-
-    CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 50);
-    await _googleMapController.animateCamera(cameraUpdate);
-  }
-
-  LatLngBounds calculateBounds(List<LatLng> points) {
-    double southWestLat = points[0].latitude;
-    double southWestLng = points[0].longitude;
-    double northEastLat = points[0].latitude;
-    double northEastLng = points[0].longitude;
-
-    for (var point in points) {
-      if (point.latitude < southWestLat) southWestLat = point.latitude;
-      if (point.longitude < southWestLng) southWestLng = point.longitude;
-      if (point.latitude > northEastLat) northEastLat = point.latitude;
-      if (point.longitude > northEastLng) northEastLng = point.longitude;
-    }
-
-    return LatLngBounds(
-      southwest: LatLng(southWestLat, southWestLng),
-      northeast: LatLng(northEastLat, northEastLng),
-    );
-  }
-
-  void _takeScreenshot() async {
-    await _setCameraToPolylineBounds();
-    await Future.delayed(const Duration(
-        seconds:
-            1)); // Delay to wait for camera animate so can capture the polylines.
-    _googleMapController.takeSnapshot().then((image) {
-      if (image != null) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              content: Column(
-                children: [
-                  Expanded(child: Image.memory(image)),
-                  Text("You have run ${_distance.toStringAsFixed(2)} meters")
-                ],
+    void showAchieveDialog() {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const SimpleDialog(children: [
+            Center(
+                child: SizedBox(
+              width: 300,
+              height: 300,
+              child: UiKitView(
+                viewType: 'congratulation_view',
+                creationParams: {},
+                creationParamsCodec: StandardMessageCodec(),
               ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text("Close"),
-                  onPressed: () {
-                    _isUpdating = true;
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
+            )),
+          ]);
+        },
+      );
+    }
 
-        MapViewModel.checkTotalDistance().then((value) async {
-          final prefs = await SharedPreferences.getInstance();
-          final hasAchieved = prefs.getBool("hasAchieved") ?? false;
-
-          if (value > 100.0 && !hasAchieved && mounted) {
-            prefs.setBool("hasAchieved", true);
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return const SimpleDialog(children: [
-                  Center(
-                      child: SizedBox(
-                    width: 300,
-                    height: 300,
-                    child: UiKitView(
-                      viewType: 'congratulation_view',
-                      creationParams: {},
-                      creationParamsCodec: StandardMessageCodec(),
-                    ),
-                  )),
-                ]);
-              },
-            );
-          }
-        });
-      }
-    }).catchError((onError) {
+    void showFinishDialog(
+        Uint8List image, double distance, Function() toggleUpdate) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: const Text("Error when capturing map!!"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(child: Image.memory(image)),
+                Text("You have run ${distance.toStringAsFixed(2)} meters"),
+              ],
+            ),
             actions: <Widget>[
               TextButton(
                 child: const Text("Close"),
                 onPressed: () {
-                  _isUpdating = true;
+                  toggleUpdate();
                   Navigator.of(context).pop();
                 },
               ),
@@ -207,59 +59,61 @@ class _MapViewState extends State<MapView> {
           );
         },
       );
-    });
-  }
 
-  @override
-  Widget build(BuildContext context) {
+      MapViewModel.checkTotalDistance().then((totalDistance) async {
+        final prefs = await SharedPreferences.getInstance();
+        final hasAchieved = prefs.getBool("hasAchieved") ?? false;
+        if (!hasAchieved && totalDistance > 100.0) {
+          prefs.setBool("hasAchieved", true);
+          showAchieveDialog();
+        }
+      });
+    }
+
     return Scaffold(
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          _currentPosition == null
-              ? const Center(child: CircularProgressIndicator())
-              : GoogleMap(
-                  onMapCreated: _onMapCreated,
-                  myLocationButtonEnabled: false,
+      body: mapState.locationData == null
+          ? const Center(child: CircularProgressIndicator())
+          : Stack(
+              alignment: Alignment.center,
+              children: [
+                GoogleMap(
+                  onMapCreated: mapStateNotifier.setMapController,
                   initialCameraPosition: CameraPosition(
-                    target: _currentPosition!,
+                    target: LatLng(
+                      mapState.locationData!.latitude!,
+                      mapState.locationData!.longitude!,
+                    ),
                     zoom: 18.0,
                   ),
                   markers: {
                     Marker(
                       markerId: const MarkerId('Id'),
-                      position: _currentPosition!,
+                      position: LatLng(
+                        mapState.locationData!.latitude!,
+                        mapState.locationData!.longitude!,
+                      ),
                     )
                   },
-                  polylines: _polylines,
+                  polylines: mapState.polylines,
                 ),
-          Positioned(
-              bottom: 16,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  padding:
-                      const EdgeInsets.all(24), // Adjust the padding as needed
+                Positioned(
+                  bottom: 16,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(24),
+                    ),
+                    onPressed: () =>
+                        mapStateNotifier.startStopTracking(showFinishDialog),
+                    child: Text(
+                      mapState.isRunning ? 'Stop' : 'Start',
+                      style: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.w500),
+                    ),
+                  ),
                 ),
-                onPressed: () {
-                  if (_currentPosition != null) {
-                    if (_isRunning) {
-                      _isUpdating = false;
-                      _distance = MapViewModel.calculatePolylineDistance(
-                          _polylineCoordinates);
-                      _takeScreenshot();
-                      _polylines.clear();
-                      _polylineCoordinates.clear();
-                    }
-                    _isRunning = !_isRunning;
-                  }
-                },
-                child: Text(_isRunning ? "Stop" : "Start",
-                    style: const TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.w500)),
-              ))
-        ],
-      ),
+              ],
+            ),
     );
   }
 }

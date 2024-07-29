@@ -1,7 +1,14 @@
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:training_schedule/data/local/database/events_database.dart';
 import 'package:training_schedule/models/event.dart';
+
+import '../../models/map/map_state.dart';
 
 class MapViewModel {
   static double calculatePolylineDistance(List<LatLng> polylinePoints) {
@@ -49,3 +56,147 @@ class MapViewModel {
     return totalDistance;
   }
 }
+
+class MapStateNotifier extends StateNotifier<MapState> {
+  final Location _locationController = Location();
+
+  MapStateNotifier() : super(MapState()) {
+    _init();
+  }
+
+  Future<void> _init() async {
+    bool serviceEnabled = await _locationController.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _locationController.requestService();
+      if (!serviceEnabled) return;
+    }
+
+    PermissionStatus permission = await _locationController.hasPermission();
+    if (permission == PermissionStatus.denied) {
+      permission = await _locationController.requestPermission();
+      if (permission != PermissionStatus.granted) return;
+    }
+
+    _locationController.onLocationChanged.listen((currentLocation) {
+      if (currentLocation.latitude != null &&
+          currentLocation.longitude != null &&
+          state.isUpdating) {
+        final newPosition = LatLng(
+          currentLocation.latitude!,
+          currentLocation.longitude!,
+        );
+
+        state = state.copyWith(
+          locationData: currentLocation,
+        );
+
+        if (state.isRunning) {
+          state = state.copyWith(
+            // locationData: currentLocation,
+            polylineCoordinates: List.from(state.polylineCoordinates)
+              ..add(newPosition),
+            polylines: {
+              Polyline(
+                polylineId: const PolylineId('polyline'),
+                visible: true,
+                points: List.from(state.polylineCoordinates)..add(newPosition),
+                color: Colors.blue,
+                width: 4,
+              ),
+            },
+          );
+        }
+
+        _moveCamera(newPosition);
+      }
+    });
+  }
+
+  void setMapController(GoogleMapController controller) {
+    state = state.copyWith(mapController: controller);
+  }
+
+  void _moveCamera(LatLng position) {
+    final controller = state.mapController;
+    if (controller != null) {
+      controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: position,
+            zoom: 18.0,
+          ),
+        ),
+      );
+    }
+  }
+
+  void startStopTracking(
+      Function(Uint8List, double, Function()) onScreenshotCaptured) async {
+    final isRunning = state.isRunning;
+    if (isRunning) {
+      state = state.copyWith(isUpdating: false);
+      final newDistance =
+          MapViewModel.calculatePolylineDistance(state.polylineCoordinates);
+
+      await _takeScreenshot(onScreenshotCaptured, newDistance);
+
+      state = state.copyWith(
+        polylines: {},
+        polylineCoordinates: [],
+      );
+    }
+    state = state.copyWith(isRunning: !state.isRunning);
+  }
+
+  Future<void> _takeScreenshot(
+      Function(Uint8List, double, Function()) onScreenshotCaptured,
+      double distance) async {
+    final controller = state.mapController;
+    if (controller != null) {
+      await _setCameraToPolylineBounds();
+      await Future.delayed(const Duration(seconds: 1));
+      final image = await controller.takeSnapshot();
+      if (image != null) {
+        onScreenshotCaptured(image, distance, () {
+          state = state.copyWith(
+            isUpdating: true,
+          );
+        });
+      }
+    }
+  }
+
+  Future<void> _setCameraToPolylineBounds() async {
+    final controller = state.mapController;
+    if (controller != null) {
+      LatLngBounds bounds = _calculateBounds(state.polylineCoordinates);
+
+      CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 50);
+      await controller.animateCamera(cameraUpdate);
+    }
+  }
+
+  LatLngBounds _calculateBounds(List<LatLng> points) {
+    double southWestLat = points[0].latitude;
+    double southWestLng = points[0].longitude;
+    double northEastLat = points[0].latitude;
+    double northEastLng = points[0].longitude;
+
+    for (var point in points) {
+      if (point.latitude < southWestLat) southWestLat = point.latitude;
+      if (point.longitude < southWestLng) southWestLng = point.longitude;
+      if (point.latitude > northEastLat) northEastLat = point.latitude;
+      if (point.longitude > northEastLng) northEastLng = point.longitude;
+    }
+
+    return LatLngBounds(
+      southwest: LatLng(southWestLat, southWestLng),
+      northeast: LatLng(northEastLat, northEastLng),
+    );
+  }
+}
+
+final mapStateProvider =
+    StateNotifierProvider<MapStateNotifier, MapState>((ref) {
+  return MapStateNotifier();
+});
