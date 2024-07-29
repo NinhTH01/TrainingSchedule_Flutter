@@ -26,10 +26,6 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
   double _maxOffsetDescription = 60;
   double _maxOffsetMinimize = 100;
   // Variables
-  double _containerHeight = 250;
-  double _descOpacity = 1.0;
-  double _minimizeOpacity = 0.0;
-  double _scrollPadding = 0.0;
 
   @override
   void initState() {
@@ -46,33 +42,32 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
   }
 
   void _onScroll() {
-    setState(() {
-      _containerHeight = _maxContainerHeight - _scrollController.offset;
-      // Ensure height doesn't go below a certain value
-      if (_containerHeight < _maxOffsetMinimize) {
-        _containerHeight = _maxOffsetMinimize;
-      }
-      if (_containerHeight > _maxContainerHeight) {
-        _containerHeight = _maxContainerHeight;
-      }
+    final containerHeight = _maxContainerHeight - _scrollController.offset;
+    final height = containerHeight < _maxOffsetMinimize
+        ? _maxOffsetMinimize
+        : (containerHeight > _maxContainerHeight
+            ? _maxContainerHeight
+            : containerHeight);
 
-      double opacity = 1.0 - (_scrollController.offset / _maxOffsetDescription);
-      if (opacity < 0) opacity = 0;
-      if (opacity > 1) opacity = 1;
-      _descOpacity = opacity;
+    final opacity = 1.0 - (_scrollController.offset / _maxOffsetDescription);
+    final double descOpacity = opacity < 0 ? 0 : (opacity > 1 ? 1 : opacity);
 
-      double minOpacity = ((_scrollController.offset - _maxOffsetDescription) /
-          (_maxOffsetMinimize - _maxOffsetDescription));
-      if (minOpacity < 0) minOpacity = 0;
-      if (minOpacity > 1) minOpacity = 1;
-      _minimizeOpacity = minOpacity;
+    final minOpacity = ((_scrollController.offset - _maxOffsetDescription) /
+        (_maxOffsetMinimize - _maxOffsetDescription));
+    final double minimizeOpacity =
+        minOpacity < 0 ? 0 : (minOpacity > 1 ? 1 : minOpacity);
 
-      if (_scrollController.offset < _maxContainerHeight - _maxOffsetMinimize) {
-        _scrollPadding = _scrollController.offset;
-      } else {
-        _scrollPadding = _maxContainerHeight - _maxOffsetMinimize;
-      }
-    });
+    final scrollPadding =
+        _scrollController.offset < _maxContainerHeight - _maxOffsetMinimize
+            ? _scrollController.offset
+            : _maxContainerHeight - _maxOffsetMinimize;
+
+    ref.read(weatherViewProvider.notifier).updateAnimationState(
+          containerHeight: height,
+          descOpacity: descOpacity,
+          minimizeOpacity: minimizeOpacity,
+          scrollPadding: scrollPadding,
+        );
   }
 
   @override
@@ -101,13 +96,22 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
 
   @override
   Widget build(BuildContext context) {
-    final dataAsyncValue = ref.watch(dataProvider);
+    final weatherViewState = ref.watch(weatherViewProvider);
+
     return Scaffold(
-      body: dataAsyncValue.when(data: (data) {
-        final Weather weather = data["weather"];
-        final WeatherForecast weatherForecast = data["weatherForecast"];
+      body: weatherViewState.dataStatus.when(data: (_) {
+        final Weather? weather = weatherViewState.data?["weather"];
+        final WeatherForecast? weatherForecast =
+            weatherViewState.data?["weatherForecast"];
+
+        final containerHeight = weatherViewState.animation.containerHeight;
+        final descOpacity = weatherViewState.animation.descOpacity;
+        final minimizeOpacity = weatherViewState.animation.minimizeOpacity;
+        final scrollPadding = weatherViewState.animation.scrollPadding;
+
         final Color backgroundColor =
-            getBackgroundColor(weather.weather[0].main);
+            getBackgroundColor(weather!.weather[0].main);
+
         return Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -122,7 +126,7 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
               children: [
                 // Start: Weather Detail
                 SizedBox(
-                  height: _containerHeight,
+                  height: containerHeight,
                   child: Column(
                     children: [
                       Text(weather.name,
@@ -130,10 +134,10 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
                               color: Colors.white)),
-                      _containerHeight >
+                      containerHeight >
                               _maxContainerHeight - _maxOffsetDescription
                           ? Opacity(
-                              opacity: _descOpacity,
+                              opacity: descOpacity,
                               child: Column(
                                 children: [
                                   Text(
@@ -161,7 +165,7 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
                                 ],
                               ))
                           : Opacity(
-                              opacity: _minimizeOpacity,
+                              opacity: minimizeOpacity,
                               child: Text(
                                 "${weather.main.temp.round()}° | ${capitalizeFirstLetter(weather.weather[0].description)}",
                                 style: const TextStyle(
@@ -176,13 +180,13 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const _NoBounceScrollPhysics(),
-                    padding: EdgeInsets.only(top: _scrollPadding),
+                    padding: EdgeInsets.only(top: scrollPadding),
                     controller: _scrollController,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // First item
-                        weatherForecastWidget(weatherForecast, weather),
+                        weatherForecastWidget(weatherForecast!, weather),
                         weatherWindWidget(weather),
                         // Grid
                         GridView(
@@ -234,7 +238,7 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
               ],
             )));
       }, error: (error, stack) {
-        return Center(child: Text('Error: ${dataAsyncValue.error}'));
+        return Center(child: Text('Error: $error'));
       }, loading: () {
         return const Center(child: CircularProgressIndicator());
       }),
