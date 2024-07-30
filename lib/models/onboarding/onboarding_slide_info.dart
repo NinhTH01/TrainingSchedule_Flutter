@@ -3,6 +3,9 @@ class OnboardingSlideInfo {
   String description;
   String image;
 
-  OnboardingSlideInfo(
-      {required this.description, required this.image, required this.title});
+  OnboardingSlideInfo({
+    required this.description,
+    required this.image,
+    required this.title,
+  });
 }

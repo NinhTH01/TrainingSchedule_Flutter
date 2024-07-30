@@ -536,6 +536,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.12.0"
+  monstarlab_lints:
+    dependency: "direct dev"
+    description:
+      name: monstarlab_lints
+      sha256: fbdde80cf9c9a0ab133b2a6aca403ec987e66ff1ee62dc218eee63c1cf25ce27
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   nested:
     dependency: transitive
     description:

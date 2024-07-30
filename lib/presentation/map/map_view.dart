@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'map_view_model.dart';
+import 'package:training_schedule/presentation/map/map_view_model.dart';
 
 class MapView extends ConsumerWidget {
   const MapView({super.key});
@@ -18,24 +17,30 @@ class MapView extends ConsumerWidget {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return const SimpleDialog(children: [
-            Center(
+          return const SimpleDialog(
+            children: [
+              Center(
                 child: SizedBox(
-              width: 300,
-              height: 300,
-              child: UiKitView(
-                viewType: 'congratulation_view',
-                creationParams: {},
-                creationParamsCodec: StandardMessageCodec(),
+                  width: 300,
+                  height: 300,
+                  child: UiKitView(
+                    viewType: 'congratulation_view',
+                    creationParams: {},
+                    creationParamsCodec: StandardMessageCodec(),
+                  ),
+                ),
               ),
-            )),
-          ]);
+            ],
+          );
         },
       );
     }
 
     void showFinishDialog(
-        Uint8List image, double distance, Function() toggleUpdate) {
+      Uint8List image,
+      double distance,
+      Function() toggleUpdate,
+    ) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -44,12 +49,12 @@ class MapView extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Expanded(child: Image.memory(image)),
-                Text("You have run ${distance.toStringAsFixed(2)} meters"),
+                Text('You have run ${distance.toStringAsFixed(2)} meters'),
               ],
             ),
             actions: <Widget>[
               TextButton(
-                child: const Text("Close"),
+                child: const Text('Close'),
                 onPressed: () {
                   toggleUpdate();
                   Navigator.of(context).pop();
@@ -62,9 +67,9 @@ class MapView extends ConsumerWidget {
 
       MapViewModel.checkTotalDistance().then((totalDistance) async {
         final prefs = await SharedPreferences.getInstance();
-        final hasAchieved = prefs.getBool("hasAchieved") ?? false;
+        final hasAchieved = prefs.getBool('hasAchieved') ?? false;
         if (!hasAchieved && totalDistance > 100.0) {
-          prefs.setBool("hasAchieved", true);
+          await prefs.setBool('hasAchieved', true);
           showAchieveDialog();
         }
       });
@@ -92,7 +97,7 @@ class MapView extends ConsumerWidget {
                         mapState.locationData!.latitude!,
                         mapState.locationData!.longitude!,
                       ),
-                    )
+                    ),
                   },
                   polylines: mapState.polylines,
                 ),
@@ -108,7 +113,9 @@ class MapView extends ConsumerWidget {
                     child: Text(
                       mapState.isRunning ? 'Stop' : 'Start',
                       style: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.w500),
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),

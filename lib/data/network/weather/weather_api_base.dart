@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:training_schedule/helper/location.dart';
+import 'package:training_schedule/models/weather/weather.dart';
 import 'package:training_schedule/models/weather/weather_forecast.dart';
-
-import '../../../helper/location.dart';
-import '../../../models/weather/weather.dart';
 
 @immutable
 class WeatherApiBase {
-  static const apiKey = "2331c2360840269c7bd115ab58a88269";
+  static const apiKey = '2331c2360840269c7bd115ab58a88269';
   static const baseUrl = 'https://api.openweathermap.org/data/2.5';
 
   static double lat = 0.0;

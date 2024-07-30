@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:training_schedule/data/network/weather/weather_api_base.dart';
-
-import '../../models/weather/weather_view_state.dart';
+import 'package:training_schedule/models/weather/weather_view_state.dart';
 
 class WeatherModelView {
   Future<Map<String, dynamic>> fetchAllData() async {
@@ -18,16 +17,18 @@ class WeatherModelView {
 
 class WeatherViewNotifier extends StateNotifier<WeatherViewState> {
   WeatherViewNotifier()
-      : super(WeatherViewState(
-          data: null,
-          animation: WeatherAnimationState(
-            containerHeight: 250.0,
-            descOpacity: 1.0,
-            minimizeOpacity: 0.0,
-            scrollPadding: 0.0,
+      : super(
+          WeatherViewState(
+            data: null,
+            animation: WeatherAnimationState(
+              containerHeight: 250.0,
+              descOpacity: 1.0,
+              minimizeOpacity: 0.0,
+              scrollPadding: 0.0,
+            ),
+            dataStatus: const AsyncValue.loading(),
           ),
-          dataStatus: const AsyncValue.loading(),
-        )) {
+        ) {
     _fetchData();
   }
 

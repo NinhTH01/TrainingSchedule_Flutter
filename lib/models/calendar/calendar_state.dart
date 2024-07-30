@@ -1,4 +1,4 @@
-import '../event_day_info.dart';
+import 'package:training_schedule/models/event_day_info.dart';
 
 class CalendarState {
   final DateTime currentDate;

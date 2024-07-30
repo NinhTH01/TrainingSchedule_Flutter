@@ -7,6 +7,7 @@ import 'package:training_schedule/presentation/onboarding/onboarding_view.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+  // ignore: prefer_single_quotes
   final onboarding = prefs.getBool("onboarding") ?? false;
   runApp(ProviderScope(child: MyApp(onboarding: onboarding)));
 }

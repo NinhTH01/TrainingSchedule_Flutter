@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:training_schedule/data/local/database/events_database.dart';
+import 'package:training_schedule/models/calendar/calendar_state.dart';
+import 'package:training_schedule/models/event.dart';
 import 'package:training_schedule/models/event_day_info.dart';
-
-import '../../../models/calendar/calendar_state.dart';
-import '../../../models/event.dart';
 
 class CalendarViewModel {
   late BuildContext context;
@@ -16,46 +15,50 @@ class CalendarViewModel {
     final controller = StreamController<List<EventDayInfo>>();
 
     // Fetch the data and add it to the stream
-    await getThisMonthDateList(date).then((list) {
-      controller.add(list);
-    });
+    await getThisMonthDateList(date).then(controller.add);
 
     yield* controller.stream;
   }
 
   Future<List<EventDayInfo>> getThisMonthDateList(DateTime currentDate) async {
-    DateTime firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
-    int weekday = firstDayOfMonth.weekday;
-    DateTime previousSunday =
-        firstDayOfMonth.subtract(Duration(days: weekday - 1));
+    var firstDayOfMonth = DateTime(currentDate.year, currentDate.month, 1);
+    var weekday = firstDayOfMonth.weekday;
+    var previousSunday = firstDayOfMonth.subtract(Duration(days: weekday - 1));
 
-    List<EventDayInfo> eventDateList = [];
-    for (int i = 0; i < 35; i++) {
-      eventDateList.add(EventDayInfo(
-          date: previousSunday.add(Duration(days: i)), hasEvent: false));
+    var eventDateList = <EventDayInfo>[];
+    for (var i = 0; i < 35; i++) {
+      eventDateList.add(
+        EventDayInfo(
+          date: previousSunday.add(Duration(days: i)),
+          hasEvent: false,
+        ),
+      );
     }
 
     return convertDatesAndHistoryToCalendarList(eventDateList);
   }
 
   Future<List<EventDayInfo>> convertDatesAndHistoryToCalendarList(
-      List<EventDayInfo> dates) async {
-    List<Event> items = [];
+    List<EventDayInfo> dates,
+  ) async {
+    var items = <Event>[];
 
     await EventsDatabase()
         .getList()
-        .then((list) => {
-              items = list,
-            })
+        .then(
+          (list) => {
+            items = list,
+          },
+        )
         .catchError((error) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: const Text("Error when capturing map!!"),
+            content: const Text('Error when capturing map!!'),
             actions: <Widget>[
               TextButton(
-                child: const Text("Close"),
+                child: const Text('Close'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -68,11 +71,11 @@ class CalendarViewModel {
       return error;
     });
 
-    List<EventDayInfo> calendarList = [];
+    var calendarList = <EventDayInfo>[];
 
-    for (EventDayInfo date in dates) {
-      bool isEvent = false;
-      for (Event item in items) {
+    for (var date in dates) {
+      var isEvent = false;
+      for (var item in items) {
         if (_isSameDay(date.date, item.createdTime)) {
           isEvent = true;
           break;
@@ -91,7 +94,7 @@ class CalendarViewModel {
   }
 
   static bool isToday(DateTime date) {
-    final DateTime now = DateTime.now();
+    final now = DateTime.now();
     return date.year == now.year &&
         date.month == now.month &&
         date.day == now.day;
@@ -105,10 +108,12 @@ final calendarStateProvider =
 
 class CalendarStateNotifier extends StateNotifier<CalendarState> {
   CalendarStateNotifier()
-      : super(CalendarState(
-          currentDate: DateTime.now(),
-          dateList: [],
-        )) {
+      : super(
+          CalendarState(
+            currentDate: DateTime.now(),
+            dateList: [],
+          ),
+        ) {
     fetchAndUpdateDateList(state.currentDate);
   }
 

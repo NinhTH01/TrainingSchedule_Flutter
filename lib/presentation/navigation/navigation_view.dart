@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:training_schedule/presentation/calendar/calendar_home/calendar_view.dart';
+import 'package:training_schedule/presentation/calendar/calendar_home/calendar_view_model.dart';
 import 'package:training_schedule/presentation/map/map_view.dart';
 import 'package:training_schedule/presentation/weather/weather_view.dart';
-
-import '../calendar/calendar_home/calendar_view.dart';
-import '../calendar/calendar_home/calendar_view_model.dart';
 
 class NavigationView extends ConsumerWidget {
   const NavigationView({super.key});
@@ -31,21 +30,22 @@ class NavigationView extends ConsumerWidget {
           ref.read(currentTabIndexProvider.notifier).state = newIndex;
           if (newIndex == 0) {
             ref.invalidate(
-                calendarStateProvider); // Refresh the calendar events
+              calendarStateProvider,
+            ); // Refresh the calendar events
           }
         },
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month),
-            label: "Calendar",
+            label: 'Calendar',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.map),
-            label: "Map",
+            label: 'Map',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.cloud),
-            label: "Weather",
+            label: 'Weather',
           ),
         ],
       ),

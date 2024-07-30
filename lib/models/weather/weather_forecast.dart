@@ -22,9 +22,7 @@ class WeatherForecast {
       cod: json['cod'] ?? '',
       message: json['message'] ?? 0,
       cnt: json['cnt'] ?? 0,
-      list: (json['list'] as List<dynamic>)
-          .map((entry) => WeatherEntry.fromJson(entry))
-          .toList(),
+      list: (json['list'] as List<dynamic>).map(WeatherEntry.fromJson).toList(),
       city: json['city'] != null ? City.fromJson(json['city']) : null,
     );
   }
@@ -56,13 +54,12 @@ class WeatherEntry {
     required this.dtTxt,
   });
 
-  factory WeatherEntry.fromJson(Map<String, dynamic> json) {
+  factory WeatherEntry.fromJson(dynamic json) {
     return WeatherEntry(
       dt: json['dt'] ?? 0,
       main: Main.fromJson(json['main']),
-      weather: (json['weather'] as List<dynamic>)
-          .map((weatherData) => WeatherData.fromJson(weatherData))
-          .toList(),
+      weather:
+          (json['weather'] as List<dynamic>).map(WeatherData.fromJson).toList(),
       clouds: Clouds.fromJson(json['clouds']),
       wind: Wind.fromJson(json['wind']),
       visibility: json['visibility'] ?? 0,

@@ -1,3 +1,5 @@
+// ignore_for_file: require_trailing_commas
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 

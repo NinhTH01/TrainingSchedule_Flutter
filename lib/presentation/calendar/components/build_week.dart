@@ -7,26 +7,26 @@ Widget buildWeek() {
     child: Row(
       children: [
         Expanded(
-          child: buildWeekDay("Mon"),
+          child: buildWeekDay('Mon'),
         ),
         Expanded(
-          child: buildWeekDay("Tue"),
+          child: buildWeekDay('Tue'),
         ),
         Expanded(
-          child: buildWeekDay("Wed"),
+          child: buildWeekDay('Wed'),
         ),
         Expanded(
-          child: buildWeekDay("Thu"),
+          child: buildWeekDay('Thu'),
         ),
         Expanded(
-          child: buildWeekDay("Fri"),
+          child: buildWeekDay('Fri'),
         ),
         Expanded(
-          child: buildWeekDay("Sat"),
+          child: buildWeekDay('Sat'),
         ),
         Expanded(
-          child: buildWeekDay("Sun"),
-        )
+          child: buildWeekDay('Sun'),
+        ),
       ],
     ),
   );
@@ -34,11 +34,12 @@ Widget buildWeek() {
 
 Widget buildWeekDay(String day) {
   return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Center(
-        child: Text(
-          day,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16.0),
-        ),
-      ));
+    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    child: Center(
+      child: Text(
+        day,
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16.0),
+      ),
+    ),
+  );
 }

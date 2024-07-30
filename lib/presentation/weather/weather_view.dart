@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:training_schedule/const/weather.dart';
 import 'package:training_schedule/helper/background_color.dart';
 import 'package:training_schedule/helper/string.dart';
 import 'package:training_schedule/helper/time.dart';
+import 'package:training_schedule/models/weather/weather.dart';
+import 'package:training_schedule/models/weather/weather_forecast.dart';
 import 'package:training_schedule/presentation/weather/components/weather_forcast.dart';
 import 'package:training_schedule/presentation/weather/components/weather_status.dart';
 import 'package:training_schedule/presentation/weather/components/weather_wind.dart';
 import 'package:training_schedule/presentation/weather/weather_model_view.dart';
-
-import '../../const/weather.dart';
-import '../../models/weather/weather.dart';
-import '../../models/weather/weather_forecast.dart';
 
 class WeatherView extends ConsumerStatefulWidget {
   const WeatherView({super.key});
@@ -33,8 +32,8 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Set final value based on screen height
-      Size size = MediaQuery.of(context).size;
-      double height = size.height;
+      var size = MediaQuery.of(context).size;
+      var height = size.height;
       _maxContainerHeight = height * 0.3;
       _maxOffsetDescription = height * 0.07;
       _maxOffsetMinimize = height * 0.11;
@@ -50,12 +49,12 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
             : containerHeight);
 
     final opacity = 1.0 - (_scrollController.offset / _maxOffsetDescription);
-    final double descOpacity = opacity < 0 ? 0 : (opacity > 1 ? 1 : opacity);
+    final descOpacity = opacity < 0 ? 0.0 : (opacity > 1 ? 1.0 : opacity);
 
-    final minOpacity = ((_scrollController.offset - _maxOffsetDescription) /
-        (_maxOffsetMinimize - _maxOffsetDescription));
-    final double minimizeOpacity =
-        minOpacity < 0 ? 0 : (minOpacity > 1 ? 1 : minOpacity);
+    final minOpacity = (_scrollController.offset - _maxOffsetDescription) /
+        (_maxOffsetMinimize - _maxOffsetDescription);
+    final minimizeOpacity =
+        minOpacity < 0 ? 0.0 : (minOpacity > 1 ? 1.0 : minOpacity);
 
     final scrollPadding =
         _scrollController.offset < _maxContainerHeight - _maxOffsetMinimize
@@ -99,149 +98,171 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
     final weatherViewState = ref.watch(weatherViewProvider);
 
     return Scaffold(
-      body: weatherViewState.dataStatus.when(data: (_) {
-        final Weather? weather = weatherViewState.data?["weather"];
-        final WeatherForecast? weatherForecast =
-            weatherViewState.data?["weatherForecast"];
+      body: weatherViewState.dataStatus.when(
+        data: (_) {
+          final Weather? weather = weatherViewState.data?['weather'];
+          final WeatherForecast? weatherForecast =
+              weatherViewState.data?['weatherForecast'];
 
-        final containerHeight = weatherViewState.animation.containerHeight;
-        final descOpacity = weatherViewState.animation.descOpacity;
-        final minimizeOpacity = weatherViewState.animation.minimizeOpacity;
-        final scrollPadding = weatherViewState.animation.scrollPadding;
+          final containerHeight = weatherViewState.animation.containerHeight;
+          final descOpacity = weatherViewState.animation.descOpacity;
+          final minimizeOpacity = weatherViewState.animation.minimizeOpacity;
+          final scrollPadding = weatherViewState.animation.scrollPadding;
 
-        final Color backgroundColor =
-            getBackgroundColor(weather!.weather[0].main);
+          final backgroundColor = getBackgroundColor(weather!.weather[0].main);
 
-        return Container(
+          return DecoratedBox(
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    _getBackgroundImagePath(weather.weather[0].main)),
+                  _getBackgroundImagePath(weather.weather[0].main),
+                ),
                 fit: BoxFit
                     .cover, // Adjust the fit property to control how the image is resized to cover the container
               ),
             ),
             child: SafeArea(
-                child: Column(
-              children: [
-                // Start: Weather Detail
-                SizedBox(
-                  height: containerHeight,
-                  child: Column(
-                    children: [
-                      Text(weather.name,
+              child: Column(
+                children: [
+                  // Start: Weather Detail
+                  SizedBox(
+                    height: containerHeight,
+                    child: Column(
+                      children: [
+                        Text(
+                          weather.name,
                           style: const TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
-                      containerHeight >
-                              _maxContainerHeight - _maxOffsetDescription
-                          ? Opacity(
-                              opacity: descOpacity,
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "${weather.main.temp.round()}°",
-                                    style: const TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        containerHeight >
+                                _maxContainerHeight - _maxOffsetDescription
+                            ? Opacity(
+                                opacity: descOpacity,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '${weather.main.temp.round()}°',
+                                      style: const TextStyle(
                                         fontSize: 60,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    capitalizeFirstLetter(
-                                        weather.weather[0].description),
-                                    style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      capitalizeFirstLetter(
+                                        weather.weather[0].description,
+                                      ),
+                                      style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    "H:${weather.main.tempMax.round()}  L:${weather.main.tempMin.round()}",
-                                    style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      'H:${weather.main.tempMax.round()}  L:${weather.main.tempMin.round()}',
+                                      style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.white),
-                                  )
-                                ],
-                              ))
-                          : Opacity(
-                              opacity: minimizeOpacity,
-                              child: Text(
-                                "${weather.main.temp.round()}° | ${capitalizeFirstLetter(weather.weather[0].description)}",
-                                style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Opacity(
+                                opacity: minimizeOpacity,
+                                child: Text(
+                                  '${weather.main.temp.round()}° | ${capitalizeFirstLetter(weather.weather[0].description)}',
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
-                                    fontWeight: FontWeight.w600),
-                              ))
-                    ],
-                  ),
-                ),
-                // End: header Detail
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const _NoBounceScrollPhysics(),
-                    padding: EdgeInsets.only(top: scrollPadding),
-                    controller: _scrollController,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // First item
-                        weatherForecastWidget(weatherForecast!, weather),
-                        weatherWindWidget(weather),
-                        // Grid
-                        GridView(
-                          padding: const EdgeInsets.all(16.0),
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2, // Number of columns
-                            crossAxisSpacing: 20.0,
-                            mainAxisSpacing: 24.0,
-                            childAspectRatio: 1, // Width / Height ratio
-                          ),
-                          children: [
-                            weatherStatusWidget(
-                                "HUMIDITY",
-                                weather.main.humidity == null
-                                    ? null
-                                    : "${weather.main.humidity}%",
-                                backgroundColor),
-                            weatherStatusWidget(
-                                "FEELS LIKE",
-                                "${weather.main.feelsLike.round()}°",
-                                backgroundColor),
-                            weatherStatusWidget(
-                                "SUNSET",
-                                unixToHHmm(weather.sys.sunset),
-                                backgroundColor),
-                            weatherStatusWidget(
-                                "SUNRISE",
-                                unixToHHmm(weather.sys.sunrise),
-                                backgroundColor),
-                            weatherStatusWidget(
-                                "PRESSURE",
-                                "${weather.main.pressure}\nhPa",
-                                backgroundColor),
-                            weatherStatusWidget(
-                                "VISIBILITY",
-                                weather.visibility == null
-                                    ? null
-                                    : "${weather.visibility! / 1000} km",
-                                backgroundColor),
-                          ],
-                        ),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                       ],
                     ),
                   ),
-                )
-              ],
-            )));
-      }, error: (error, stack) {
-        return Center(child: Text('Error: $error'));
-      }, loading: () {
-        return const Center(child: CircularProgressIndicator());
-      }),
+                  // End: header Detail
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const _NoBounceScrollPhysics(),
+                      padding: EdgeInsets.only(top: scrollPadding),
+                      controller: _scrollController,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // First item
+                          weatherForecastWidget(weatherForecast!, weather),
+                          weatherWindWidget(weather),
+                          // Grid
+                          GridView(
+                            padding: const EdgeInsets.all(16.0),
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2, // Number of columns
+                              crossAxisSpacing: 20.0,
+                              mainAxisSpacing: 24.0,
+                              childAspectRatio: 1, // Width / Height ratio
+                            ),
+                            children: [
+                              weatherStatusWidget(
+                                'HUMIDITY',
+                                weather.main.humidity == null
+                                    ? null
+                                    : '${weather.main.humidity}%',
+                                backgroundColor,
+                              ),
+                              weatherStatusWidget(
+                                'FEELS LIKE',
+                                '${weather.main.feelsLike.round()}°',
+                                backgroundColor,
+                              ),
+                              weatherStatusWidget(
+                                'SUNSET',
+                                unixToHHmm(weather.sys.sunset),
+                                backgroundColor,
+                              ),
+                              weatherStatusWidget(
+                                'SUNRISE',
+                                unixToHHmm(weather.sys.sunrise),
+                                backgroundColor,
+                              ),
+                              weatherStatusWidget(
+                                'PRESSURE',
+                                '${weather.main.pressure}\nhPa',
+                                backgroundColor,
+                              ),
+                              weatherStatusWidget(
+                                'VISIBILITY',
+                                weather.visibility == null
+                                    ? null
+                                    : '${weather.visibility! / 1000} km',
+                                backgroundColor,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        error: (error, stack) {
+          return Center(child: Text('Error: $error'));
+        },
+        loading: () {
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
     );
   }
 }

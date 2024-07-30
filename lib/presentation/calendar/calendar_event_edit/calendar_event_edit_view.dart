@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:training_schedule/models/event.dart';
 import 'package:training_schedule/models/event_day_info.dart';
-
-import '../../../models/event.dart';
-import 'calendar_event_edit_model_view.dart';
+import 'package:training_schedule/presentation/calendar/calendar_event_edit/calendar_event_edit_model_view.dart';
 
 class CalendarEventEditView extends ConsumerWidget {
   final EventDayInfo date;
@@ -68,22 +67,30 @@ class CalendarEventEditView extends ConsumerWidget {
                   icon: const Icon(Icons.arrow_back_ios),
                 ),
                 Text(
-                  isEdit ? "Edit Event" : "New Event",
+                  isEdit ? 'Edit Event' : 'New Event',
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16.0),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
                     ref
                         .read(eventEditProvider(event).notifier)
-                        .addOrUpdateEvent(date, isEdit, event);
+                        .addOrUpdateEvent(
+                          date: date,
+                          isEdit: isEdit,
+                          eventInfo: event,
+                        );
                     ref.invalidate(eventEditProvider(event));
                     Navigator.pop(context);
                   },
                   child: const Text(
-                    "Save",
+                    'Save',
                     style: TextStyle(
-                        fontWeight: FontWeight.w600, color: Colors.black),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ],
@@ -110,7 +117,7 @@ class CalendarEventEditView extends ConsumerWidget {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () async {
-                      final TimeOfDay? timeOfDay = await showTimePicker(
+                      final timeOfDay = await showTimePicker(
                         context: context,
                         initialTime: eventNotifier.selectedTime,
                         initialEntryMode: TimePickerEntryMode.input,
@@ -134,7 +141,7 @@ class CalendarEventEditView extends ConsumerWidget {
                 ? TextButton(
                     onPressed: showActionSheet,
                     child: const Text(
-                      "Delete",
+                      'Delete',
                       style: TextStyle(color: Colors.red),
                     ),
                   )

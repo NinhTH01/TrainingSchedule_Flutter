@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../calendar_event_list/calendar_event_list_view.dart';
-import '../components/build_calendar.dart';
-import '../components/build_header.dart';
-import '../components/build_week.dart';
-import 'calendar_view_model.dart';
+import 'package:training_schedule/presentation/calendar/calendar_event_list/calendar_event_list_view.dart';
+import 'package:training_schedule/presentation/calendar/calendar_home/calendar_view_model.dart';
+import 'package:training_schedule/presentation/calendar/components/build_calendar.dart';
+import 'package:training_schedule/presentation/calendar/components/build_header.dart';
+import 'package:training_schedule/presentation/calendar/components/build_week.dart';
 
 class CalendarView extends ConsumerWidget {
   const CalendarView({super.key});
@@ -50,7 +49,8 @@ class CalendarView extends ConsumerWidget {
                           ref
                               .read(calendarStateProvider.notifier)
                               .fetchAndUpdateDateList(
-                                  calendarState.currentDate);
+                                calendarState.currentDate,
+                              );
                         });
                       },
                     ),

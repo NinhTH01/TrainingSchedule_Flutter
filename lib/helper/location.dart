@@ -18,5 +18,5 @@ Future<Position> getLocation() async {
     );
   }
 
-  return await Geolocator.getCurrentPosition();
+  return Geolocator.getCurrentPosition();
 }

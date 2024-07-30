@@ -85,7 +85,7 @@ class WeatherData {
     required this.icon,
   });
 
-  factory WeatherData.fromJson(Map<String, dynamic> json) => WeatherData(
+  factory WeatherData.fromJson(dynamic json) => WeatherData(
         id: json['id'] as int,
         main: json['main'] as String,
         description: json['description'] as String,

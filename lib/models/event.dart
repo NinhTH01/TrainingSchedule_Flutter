@@ -29,7 +29,7 @@ class Event {
       EventFields.id: id,
       EventFields.distance: distance,
       EventFields.description: description,
-      EventFields.time: DateFormat('yyyy-MM-dd HH:mm:ss').format(createdTime)
+      EventFields.time: DateFormat('yyyy-MM-dd HH:mm:ss').format(createdTime),
     };
   }
 
