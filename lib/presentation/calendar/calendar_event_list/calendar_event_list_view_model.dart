@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/local/database/events_database.dart';
 import '../../../models/event.dart';
@@ -32,8 +33,21 @@ class CalendarEventListViewModel {
           );
         },
       );
+      return error;
     });
 
     return items;
   }
 }
+
+// Define a provider for the event list
+final eventListProvider =
+    FutureProvider.family<List<Event>, DateTime>((ref, date) {
+  final viewModel = ref.watch(calendarEventListViewModelProvider);
+  return viewModel.getEventListOnDate(date);
+});
+
+final calendarEventListViewModelProvider =
+    Provider<CalendarEventListViewModel>((ref) {
+  return CalendarEventListViewModel();
+});

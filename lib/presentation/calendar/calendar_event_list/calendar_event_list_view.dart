@@ -1,70 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:training_schedule/models/event_day_info.dart';
 import 'package:training_schedule/presentation/calendar/calendar_event_edit/calendar_event_edit_view.dart';
-import 'package:training_schedule/presentation/calendar/calendar_event_list/calendar_event_list_view_model.dart';
 
 import '../../../models/event.dart';
+import '../calendar_event_list/calendar_event_list_view_model.dart';
 import '../components/calendar_detail_header.dart';
 
-class CalendarEventListView extends StatefulWidget {
+class CalendarEventListView extends ConsumerWidget {
   final EventDayInfo date;
 
   const CalendarEventListView({super.key, required this.date});
 
   @override
-  State<CalendarEventListView> createState() => _CalendarEventListViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final eventListAsyncValue = ref.watch(eventListProvider(date.date));
 
-class _CalendarEventListViewState extends State<CalendarEventListView> {
-  final CalendarEventListViewModel _viewModel = CalendarEventListViewModel();
-
-  List<Event> _eventList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _getEventList();
-    _viewModel.context = context;
-  }
-
-  void _getEventList() {
-    _viewModel.getEventListOnDate(widget.date.date).then((eventList) {
-      setState(() {
-        _eventList = eventList;
-      });
-    });
-  }
-
-  void _goToEventEditView(bool isEdit, Event? event) {
-    Navigator.push(
+    void goToEventEditView(bool isEdit, Event? event) {
+      Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => CalendarEventEditView(
-                  date: widget.date,
-                  isEdit: isEdit,
-                  event: event,
-                ))).then((_) {
-      _getEventList();
-    });
-  }
+          builder: (context) => CalendarEventEditView(
+            date: date,
+            isEdit: isEdit,
+            event: event,
+          ),
+        ),
+      ).then((_) {
+        // To refresh the event list, you could re-fetch it
+        ref.invalidate(eventListProvider(date.date));
+      });
+    }
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-            child: Column(
-      children: [
-        calendarDetailHeader(context, widget, _goToEventEditView),
-        Expanded(
-            child: ListView.builder(
-          itemBuilder: (BuildContext context, int index) {
-            return eventItemList(_eventList[index], _goToEventEditView);
-          },
-          itemCount: _eventList.length,
-        ))
-      ],
-    )));
+      body: SafeArea(
+        child: Column(
+          children: [
+            calendarDetailHeader(context, date, goToEventEditView),
+            Expanded(
+              child: eventListAsyncValue.when(
+                data: (eventList) => ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+                    return eventItemList(eventList[index], goToEventEditView);
+                  },
+                  itemCount: eventList.length,
+                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, stackTrace) => Center(child: Text('Error: $e')),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -45,7 +45,9 @@ class MapViewModel {
         .then((list) => {
               items = list,
             })
-        .catchError((error) {});
+        .catchError((error) {
+      return error;
+    });
 
     double totalDistance = 0;
 
@@ -106,7 +108,6 @@ class MapStateNotifier extends StateNotifier<MapState> {
             },
           );
         }
-
         _moveCamera(newPosition);
       }
     });
@@ -114,20 +115,6 @@ class MapStateNotifier extends StateNotifier<MapState> {
 
   void setMapController(GoogleMapController controller) {
     state = state.copyWith(mapController: controller);
-  }
-
-  void _moveCamera(LatLng position) {
-    final controller = state.mapController;
-    if (controller != null) {
-      controller.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: position,
-            zoom: 18.0,
-          ),
-        ),
-      );
-    }
   }
 
   void startStopTracking(
@@ -146,6 +133,20 @@ class MapStateNotifier extends StateNotifier<MapState> {
       );
     }
     state = state.copyWith(isRunning: !state.isRunning);
+  }
+
+  void _moveCamera(LatLng position) {
+    final controller = state.mapController;
+    if (controller != null) {
+      controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: position,
+            zoom: 18.0,
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _takeScreenshot(

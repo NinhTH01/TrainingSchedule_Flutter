@@ -1,19 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:training_schedule/data/local/database/events_database.dart';
 import 'package:training_schedule/models/event_day_info.dart';
 
+import '../../../models/calendar/calendar_state.dart';
 import '../../../models/event.dart';
 
 class CalendarViewModel {
   late BuildContext context;
 
   // Calendar Events Stream Provider
-  Stream<List<EventDayInfo>> getThisMonthDateListStream(
-      DateTime dateTime) async* {
-    // Replace the following with actual implementation to get a stream of data
-    // For example, if you fetch data periodically or on some event, you can yield data here
-    List<EventDayInfo> list = await getThisMonthDateList(dateTime);
-    yield list; // Emit the list of EventDayInfo
+  Stream<List<EventDayInfo>> getThisMonthDateListStream(DateTime date) async* {
+    final controller = StreamController<List<EventDayInfo>>();
+
+    // Fetch the data and add it to the stream
+    await getThisMonthDateList(date).then((list) {
+      controller.add(list);
+    });
+
+    yield* controller.stream;
   }
 
   Future<List<EventDayInfo>> getThisMonthDateList(DateTime currentDate) async {
@@ -57,6 +64,8 @@ class CalendarViewModel {
           );
         },
       );
+
+      return error;
     });
 
     List<EventDayInfo> calendarList = [];
@@ -86,5 +95,42 @@ class CalendarViewModel {
     return date.year == now.year &&
         date.month == now.month &&
         date.day == now.day;
+  }
+}
+
+final calendarStateProvider =
+    StateNotifierProvider<CalendarStateNotifier, CalendarState>((ref) {
+  return CalendarStateNotifier();
+});
+
+class CalendarStateNotifier extends StateNotifier<CalendarState> {
+  CalendarStateNotifier()
+      : super(CalendarState(
+          currentDate: DateTime.now(),
+          dateList: [],
+        )) {
+    fetchAndUpdateDateList(state.currentDate);
+  }
+
+  void changeToLastMonth() {
+    final newDate =
+        DateTime(state.currentDate.year, state.currentDate.month - 1);
+    fetchAndUpdateDateList(newDate);
+  }
+
+  void changeToNextMonth() {
+    final newDate =
+        DateTime(state.currentDate.year, state.currentDate.month + 1);
+    fetchAndUpdateDateList(newDate);
+  }
+
+  Future<void> fetchAndUpdateDateList(DateTime newDate) async {
+    // Assume you have an instance of CalendarViewModel
+    final viewModel = CalendarViewModel();
+    final list = await viewModel.getThisMonthDateList(newDate);
+    state = CalendarState(
+      currentDate: newDate,
+      dateList: list,
+    );
   }
 }

@@ -4,7 +4,7 @@ import 'package:training_schedule/presentation/map/map_view.dart';
 import 'package:training_schedule/presentation/weather/weather_view.dart';
 
 import '../calendar/calendar_home/calendar_view.dart';
-import 'navigation_view_model.dart'; // Import the file where you defined the providers
+import '../calendar/calendar_home/calendar_view_model.dart';
 
 class NavigationView extends ConsumerWidget {
   const NavigationView({super.key});
@@ -16,13 +16,13 @@ class NavigationView extends ConsumerWidget {
     return Scaffold(
       body: IndexedStack(
         index: currentIndex,
-        children: [
+        children: const [
           CalendarView(
-            // Use FutureProvider to get the calendar events
-            stream: ref.watch(calendarEventsProvider.stream),
-          ),
-          const MapView(),
-          const WeatherView(),
+              // Use FutureProvider to get the calendar events
+              // stream: ref.watch(calendarEventsProvider.stream),
+              ),
+          MapView(),
+          WeatherView(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -30,7 +30,8 @@ class NavigationView extends ConsumerWidget {
         onTap: (newIndex) {
           ref.read(currentTabIndexProvider.notifier).state = newIndex;
           if (newIndex == 0) {
-            ref.refresh(calendarEventsProvider); // Refresh the calendar events
+            ref.invalidate(
+                calendarStateProvider); // Refresh the calendar events
           }
         },
         items: const [
