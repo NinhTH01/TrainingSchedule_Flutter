@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:training_schedule/data/local/shared_preference/achievement_preference.dart';
 import 'package:training_schedule/presentation/map/map_view_model.dart';
 
 class MapView extends ConsumerWidget {
@@ -66,10 +66,9 @@ class MapView extends ConsumerWidget {
       );
 
       MapViewModel.checkTotalDistance().then((totalDistance) async {
-        final prefs = await SharedPreferences.getInstance();
-        final hasAchieved = prefs.getBool('hasAchieved') ?? false;
+        final hasAchieved = await AchievementPreference.getAchievement();
         if (!hasAchieved && totalDistance > 100.0) {
-          await prefs.setBool('hasAchieved', true);
+          await AchievementPreference.setAchievement(value: true);
           showAchieveDialog();
         }
       });

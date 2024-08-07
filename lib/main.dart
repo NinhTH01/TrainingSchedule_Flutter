@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:training_schedule/data/local/shared_preference/onboarding_preference.dart';
 import 'package:training_schedule/presentation/navigation/navigation_view.dart';
 import 'package:training_schedule/presentation/onboarding/onboarding_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  // ignore: prefer_single_quotes
-  final onboarding = prefs.getBool("onboarding") ?? false;
+  final onboarding = await OnboardingPreference.getOnboarding();
   runApp(ProviderScope(child: MyApp(onboarding: onboarding)));
 }
 
