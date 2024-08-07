@@ -1,7 +1,7 @@
 import 'dart:ui';
 
-import 'package:training_schedule/const/weather.dart';
-import 'package:training_schedule/const/weather_colors.dart';
+import 'package:training_schedule/constants/weather.dart';
+import 'package:training_schedule/constants/weather_colors.dart';
 
 Color getBackgroundColor(String weather) {
   switch (weather) {

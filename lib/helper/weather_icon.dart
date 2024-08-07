@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:training_schedule/const/weather.dart';
+import 'package:training_schedule/constants/weather.dart';
 
 Icon getWeatherIcon(String weatherCondition) {
   switch (weatherCondition) {
