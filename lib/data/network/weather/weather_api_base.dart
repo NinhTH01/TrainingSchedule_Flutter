@@ -6,7 +6,7 @@ import 'package:training_schedule/models/weather/weather_forecast.dart';
 
 @immutable
 class WeatherApiBase {
-  static const apiKey = '2331c2360840269c7bd115ab58a88269';
+  static const apiKey = String.fromEnvironment('WEATHER_API_KEY');
   static const baseUrl = 'https://api.openweathermap.org/data/2.5';
 
   static double lat = 0.0;
