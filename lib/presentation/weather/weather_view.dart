@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:training_schedule/constants/weather.dart';
-import 'package:training_schedule/helper/background_color.dart';
 import 'package:training_schedule/helper/string.dart';
 import 'package:training_schedule/helper/time.dart';
+import 'package:training_schedule/helper/weather_helper.dart';
 import 'package:training_schedule/models/weather/weather.dart';
 import 'package:training_schedule/models/weather/weather_forecast.dart';
 import 'package:training_schedule/presentation/weather/components/weather_forcast.dart';
@@ -109,7 +109,8 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
           final minimizeOpacity = weatherViewState.animation.minimizeOpacity;
           final scrollPadding = weatherViewState.animation.scrollPadding;
 
-          final backgroundColor = getBackgroundColor(weather!.weather[0].main);
+          final backgroundColor =
+              WeatherHelper.getBackgroundColor(weather!.weather[0].main);
 
           return DecoratedBox(
             decoration: BoxDecoration(
@@ -152,9 +153,8 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
                                       ),
                                     ),
                                     Text(
-                                      capitalizeFirstLetter(
-                                        weather.weather[0].description,
-                                      ),
+                                      weather.weather[0].description
+                                          .capitalizeFirstLetter(),
                                       style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
@@ -175,7 +175,7 @@ class _WeatherViewState extends ConsumerState<WeatherView> {
                             : Opacity(
                                 opacity: minimizeOpacity,
                                 child: Text(
-                                  '${weather.main.temp.round()}° | ${capitalizeFirstLetter(weather.weather[0].description)}',
+                                  '${weather.main.temp.round()}° | ${weather.weather[0].description.capitalizeFirstLetter()}',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,

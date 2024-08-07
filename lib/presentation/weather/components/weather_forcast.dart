@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:training_schedule/helper/background_color.dart';
 import 'package:training_schedule/helper/time.dart';
-import 'package:training_schedule/helper/weather_icon.dart';
+import 'package:training_schedule/helper/weather_helper.dart';
 import 'package:training_schedule/models/weather/weather.dart';
 import 'package:training_schedule/models/weather/weather_forecast.dart';
 
@@ -11,7 +10,7 @@ Widget weatherForecastWidget(WeatherForecast weatherForecast, Weather weather) {
     margin: const EdgeInsets.all(16.0),
     padding: const EdgeInsets.all(16.0),
     decoration: BoxDecoration(
-      color: getBackgroundColor(weather.weather[0].main),
+      color: WeatherHelper.getBackgroundColor(weather.weather[0].main),
       borderRadius: BorderRadius.circular(12.0),
     ),
     child: Column(
@@ -42,7 +41,7 @@ Widget weatherForecastWidget(WeatherForecast weatherForecast, Weather weather) {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: getWeatherIcon(
+                      child: WeatherHelper.getWeatherIcon(
                         weatherForecast.list[index].weather[0].main,
                       ),
                     ),

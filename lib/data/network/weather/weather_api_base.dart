@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:training_schedule/helper/location.dart';
+import 'package:training_schedule/helper/location_helper.dart';
 import 'package:training_schedule/models/weather/weather.dart';
 import 'package:training_schedule/models/weather/weather_forecast.dart';
 
@@ -20,7 +20,7 @@ class WeatherApiBase {
       '$baseUrl/forecast?lat=$lat&lon=$lon&units=metric&appid=$apiKey';
 
   static Future<void> fetchLocation() async {
-    final location = await getLocation();
+    final location = await LocationHelper.getLocation();
     lat = location.latitude;
     lon = location.longitude;
   }
