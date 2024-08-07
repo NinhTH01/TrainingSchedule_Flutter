@@ -81,10 +81,13 @@ class EventsDatabase {
     return result.map(Event.fromJson).toList();
   }
 
-  Future<List<Event>> getListOnDate(DateTime date) async {
+  Future<List<Event>> getListOnDate(
+    DateTime date, {
+    String orderBy = 'ASC',
+  }) async {
     // Get a reference to the database.
     final db = await database;
-    const orderBy = '${EventFields.time} ASC';
+    // const orderBy = '${EventFields.time} ${orderBy}';
 
     var startDate = DateTime(date.year, date.month, date.day);
     var endDate = DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
@@ -99,7 +102,7 @@ class EventsDatabase {
       tableEvents,
       where: 'time BETWEEN ? AND ?',
       whereArgs: [formattedStartDate, formattedEndDate],
-      orderBy: orderBy,
+      orderBy: '${EventFields.time} $orderBy',
     );
 
     // Convert the list of each dog's fields into a list of `Dog` objects.
