@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:training_schedule/data/network/weather/weather_api_base.dart';
+import 'package:training_schedule/helper/location_helper.dart';
 import 'package:training_schedule/presentation/weather/weather_view_state.dart';
 
 class WeatherModelView {
   Future<Map<String, dynamic>> fetchAllData() async {
+    final location = await LocationHelper.getLocation();
+    await WeatherApiBase.setLocation(location);
     final weather = await WeatherApiBase.getCurrentWeather();
     final weatherForecast = await WeatherApiBase.getHourlyForecast();
     return {

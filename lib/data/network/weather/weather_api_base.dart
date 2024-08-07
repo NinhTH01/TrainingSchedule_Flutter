@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:training_schedule/helper/location_helper.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:training_schedule/models/weather/weather.dart';
 import 'package:training_schedule/models/weather/weather_forecast.dart';
 
@@ -19,21 +19,18 @@ class WeatherApiBase {
   static String _constructForecastUrl() =>
       '$baseUrl/forecast?lat=$lat&lon=$lon&units=metric&appid=$apiKey';
 
-  static Future<void> fetchLocation() async {
-    final location = await LocationHelper.getLocation();
+  static Future<void> setLocation(Position location) async {
     lat = location.latitude;
     lon = location.longitude;
   }
 
   static Future<Weather> getCurrentWeather() async {
-    await fetchLocation();
     final url = _constructWeatherUrl();
     final response = await _fetchData(url);
     return Weather.fromJson(response);
   }
 
   static Future<WeatherForecast> getHourlyForecast() async {
-    await fetchLocation();
     final url = _constructForecastUrl();
     final response = await _fetchData(url);
     return WeatherForecast.fromJson(response);
