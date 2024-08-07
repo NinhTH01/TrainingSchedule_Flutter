@@ -12,7 +12,7 @@ class CalendarView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final calendarState = ref.watch(calendarStateProvider);
-    final dateList = calendarState.dateList;
+    final dateList = calendarState.eventDayInfoList;
 
     return Scaffold(
       body: SafeArea(

@@ -6,13 +6,13 @@ import 'package:training_schedule/models/event.dart';
 import 'package:training_schedule/models/event_day_info.dart';
 
 final eventEditProvider =
-    StateNotifierProvider.family<EventEditNotifier, EventEditState, Event?>(
+    StateNotifierProvider.family<EventEditViewModel, EventEditState, Event?>(
         (ref, eventInfo) {
-  return EventEditNotifier(eventInfo);
+  return EventEditViewModel(eventInfo);
 });
 
-class EventEditNotifier extends StateNotifier<EventEditState> {
-  EventEditNotifier(Event? eventInfo)
+class EventEditViewModel extends StateNotifier<EventEditState> {
+  EventEditViewModel(Event? eventInfo)
       : super(
           EventEditState(
             selectedTime: TimeOfDay.fromDateTime(

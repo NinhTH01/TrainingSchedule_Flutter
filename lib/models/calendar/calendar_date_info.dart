@@ -1,11 +1,11 @@
 import 'package:training_schedule/models/event_day_info.dart';
 
-class CalendarState {
+class CalendarDateInfo {
   final DateTime currentDate;
-  final List<EventDayInfo> dateList;
+  final List<EventDayInfo> eventDayInfoList;
 
-  CalendarState({
+  CalendarDateInfo({
     required this.currentDate,
-    required this.dateList,
+    required this.eventDayInfoList,
   });
 }

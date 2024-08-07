@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:training_schedule/data/local/database/events_database.dart';
-import 'package:training_schedule/models/calendar/calendar_state.dart';
+import 'package:training_schedule/models/calendar/calendar_date_info.dart';
 import 'package:training_schedule/models/event.dart';
 import 'package:training_schedule/models/event_day_info.dart';
 
@@ -102,16 +102,16 @@ class CalendarViewModel {
 }
 
 final calendarStateProvider =
-    StateNotifierProvider<CalendarStateNotifier, CalendarState>((ref) {
+    StateNotifierProvider<CalendarStateNotifier, CalendarDateInfo>((ref) {
   return CalendarStateNotifier();
 });
 
-class CalendarStateNotifier extends StateNotifier<CalendarState> {
+class CalendarStateNotifier extends StateNotifier<CalendarDateInfo> {
   CalendarStateNotifier()
       : super(
-          CalendarState(
+          CalendarDateInfo(
             currentDate: DateTime.now(),
-            dateList: [],
+            eventDayInfoList: [],
           ),
         ) {
     fetchAndUpdateDateList(state.currentDate);
@@ -133,9 +133,9 @@ class CalendarStateNotifier extends StateNotifier<CalendarState> {
     // Assume you have an instance of CalendarViewModel
     final viewModel = CalendarViewModel();
     final list = await viewModel.getThisMonthDateList(newDate);
-    state = CalendarState(
+    state = CalendarDateInfo(
       currentDate: newDate,
-      dateList: list,
+      eventDayInfoList: list,
     );
   }
 }

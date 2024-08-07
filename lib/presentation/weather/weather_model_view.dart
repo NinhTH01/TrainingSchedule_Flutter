@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:training_schedule/data/network/weather/weather_api_base.dart';
-import 'package:training_schedule/models/weather/weather_view_state.dart';
+import 'package:training_schedule/presentation/weather/weather_view_state.dart';
 
 class WeatherModelView {
   Future<Map<String, dynamic>> fetchAllData() async {

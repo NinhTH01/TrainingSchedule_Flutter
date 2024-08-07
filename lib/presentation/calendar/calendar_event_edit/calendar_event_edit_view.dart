@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:training_schedule/models/event.dart';
 import 'package:training_schedule/models/event_day_info.dart';
-import 'package:training_schedule/presentation/calendar/calendar_event_edit/calendar_event_edit_model_view.dart';
+import 'package:training_schedule/presentation/calendar/calendar_event_edit/calendar_event_edit_view_model.dart';
 
 class CalendarEventEditView extends ConsumerWidget {
   final EventDayInfo date;
